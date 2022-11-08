@@ -2,13 +2,15 @@
 use strict;
 use warnings;
 
-use DateTime;
+use Time::Piece;
 
 my $InputFile = "/tmp/files";
 my $FindCommand = "find . -print > $InputFile";
 my %FileList = ();
+my $RepoDir = "/var/www/html/jdownloads/MacOS\ Files";
+my $OutputFile = "$RepoDir/LatestFiles.txt";
 
-chdir("/var/www/html/jdownloads/MacOS\ Files");
+chdir($RepoDir);
 system("$FindCommand");
 
 open(my $fh, '<:encoding(UTF-8)', $InputFile)
@@ -17,7 +19,7 @@ open(my $fh, '<:encoding(UTF-8)', $InputFile)
 while (my $row = <$fh>)
 {
 	chomp $row;
-	if (($row eq "..")||($row eq "..")||($row eq "./Desktop Folder"))
+	if (($row eq "..")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt"))
 	{
 		next;
 	}
@@ -52,10 +54,20 @@ while (my $row = <$fh>)
 }
 close ($fh);
 
+open($fh, '>', $OutputFile)
+  or die "Could not open file '$OutputFile' $!";
+
+print $fh "Classic Mac First Class Server Files\n";
+my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
+print $fh "Last Scan: $HumanDate\n";
+print $fh "====================================\n";
+print $fh "Creation Date\t\tFile Name\n";
+print $fh "-------------\t\t---------\n";
+
 foreach my $name (reverse sort keys %FileList)
 {
-	my $dt = DateTime->from_epoch( epoch => $name );
-	printf "%-8s %s\n", $name, $FileList{$name};
-	print "year = $dt->year\n";
+	$HumanDate = localtime($name)->strftime('%F %T'); # adjust format to taste
+	print $fh "$HumanDate\t$FileList{$name}\n";
 }
+close ($fh);
 exit 0;
