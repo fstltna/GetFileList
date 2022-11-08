@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $InputFile = "/tmp/files";
+my $FindCommand = "find . -print > $InputFile";
+my %FileList = ();
+
+chdir("/var/www/html/MacOS\ Files");
+system("$FindCommand");
+
+open(my $fh, '<:encoding(UTF-8)', $InputFile)
+  or die "Could not open file '$InputFile' $!";
+ 
+while (my $row = <$fh>)
+{
+	chomp $row;
+	if (($row eq "..")||($row eq "..")||($row eq "./Desktop Folder"))
+	{
+		next;
+	}
+	if (-d $row)
+	{
+		# print "$row was a directory\n";
+		next;
+	}
+
+	if (index($row, "rsrc") != -1)
+	{
+		#print "Saw it\n";
+		next;
+	}
+	#my $substring = $row;
+	#if (my $mystring =~ /\Q\.rsrc\E/)
+	#if (my $mystring =~ /rsrc/)
+	#{
+	#	print qq("$mystring" contains ".rsrc"\n);
+	#	next;
+	#}
+
+	$row = substr($row, 2);
+	# print "new $row\n";
+	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
+		$atime,$mtime,$ctime,$blksize,$blocks)
+		= stat($row);
+	# print "modify time: $mtime\n";
+	$FileList{$mtime} = $row;
+
+	# print "$FileList{$mtime}\n";
+}
+close ($fh);
+
+foreach my $name (reverse sort keys %FileList)
+{
+	printf "%-8s %s\n", $name, $FileList{$name};
+}
+exit 0;
