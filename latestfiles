@@ -57,9 +57,9 @@ close ($fh);
 open($fh, '>', $OutputFile)
   or die "Could not open file '$OutputFile' $!";
 
-print $fh "Classic Mac First Class Server Files\n";
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan: $HumanDate\n";
+print $fh "Classic Mac First Class Server Files\n";
 print $fh "====================================\n";
 print $fh "Creation Date\t\tFile Name\n";
 print $fh "-------------\t\t---------\n";
