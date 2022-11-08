@@ -2,11 +2,13 @@
 use strict;
 use warnings;
 
+use DateTime;
+
 my $InputFile = "/tmp/files";
 my $FindCommand = "find . -print > $InputFile";
 my %FileList = ();
 
-chdir("/var/www/html/MacOS\ Files");
+chdir("/var/www/html/jdownloads/MacOS\ Files");
 system("$FindCommand");
 
 open(my $fh, '<:encoding(UTF-8)', $InputFile)
@@ -52,6 +54,8 @@ close ($fh);
 
 foreach my $name (reverse sort keys %FileList)
 {
+	my $dt = DateTime->from_epoch( epoch => $name );
 	printf "%-8s %s\n", $name, $FileList{$name};
+	print "year = $dt->year\n";
 }
 exit 0;
