@@ -8,7 +8,9 @@ my $InputFile = "/tmp/files";
 my $FindCommand = "find . -print > $InputFile";
 my %FileList = ();
 my $RepoDir = "/var/www/html/jdownloads/MacOS\ Files";
+my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
 my $OutputFile = "$RepoDir/LatestFiles.txt";
+my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 
 chdir($RepoDir);
 system("$FindCommand");
@@ -19,7 +21,7 @@ open(my $fh, '<:encoding(UTF-8)', $InputFile)
 while (my $row = <$fh>)
 {
 	chomp $row;
-	if (($row eq "..")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt"))
+	if (($row eq "..")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt")||($row eq "./LatestFilesUnix.txt"))
 	{
 		next;
 	}
@@ -54,14 +56,14 @@ while (my $row = <$fh>)
 }
 close ($fh);
 
-open($fh, '>', $OutputFile)
-  or die "Could not open file '$OutputFile' $!";
+open($fh, '>', $UnixFile)
+  or die "Could not open file '$UnixFile' $!";
 
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan: $HumanDate\n";
 print $fh "Classic Mac First Class Server Files\n";
 print $fh "====================================\n";
-print $fh "Creation Date\t\tFile Name\n";
+print $fh "Creation Date\t\t\tFile Name\n";
 print $fh "-------------\t\t---------\n";
 
 foreach my $name (reverse sort keys %FileList)
@@ -70,4 +72,5 @@ foreach my $name (reverse sort keys %FileList)
 	print $fh "$HumanDate\t$FileList{$name}\n";
 }
 close ($fh);
+system($ConversionCommand);
 exit 0;
