@@ -69,12 +69,12 @@ print $fh "-------------\t\t---------\n";
 foreach my $name (reverse sort keys %FileList)
 {
 	$HumanDate = localtime($name)->strftime('%F %T'); # adjust format to taste
-	if (length($FileList{$name}) >= 79)
+	if (length($FileList{$name}) >= 53)
 	{
-		print "Saw long line\n";
-		my $FirstLine = substr($FileList{$name}, 0, 79);
-		my $NextLine = substr($FileList{$name}, 79);
-		print $fh "$HumanDate\t$FirstLine\n\t\t$NextLine\n";
+		print "Saw long line:\n$FileList{$name}\n";
+		my $FirstLine = substr($FileList{$name}, 0, 53);
+		my $NextLine = substr($FileList{$name}, 53);
+		print $fh "$HumanDate\t$FirstLine\n\t\t\t$NextLine\n";
 		#print "FirstLine = '$FirstLine'\n";
 		#print "NextLine = '$NextLine'\n";
 	}
