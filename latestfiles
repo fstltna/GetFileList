@@ -11,6 +11,7 @@ my $RepoDir = "/var/www/html/jdownloads/MacOS\ Files";
 my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
 my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
+my $NumFiles = 0;
 
 chdir($RepoDir);
 system("$FindCommand");
@@ -51,6 +52,7 @@ while (my $row = <$fh>)
 		= stat($row);
 	# print "modify time: $mtime\n";
 	$FileList{$mtime} = $row;
+	$NumFiles += 1;
 
 	# print "$FileList{$mtime}\n";
 }
@@ -61,6 +63,7 @@ open($fh, '>', $UnixFile)
 
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan: $HumanDate\n";
+print $fh "Files found: $NumFiles\n";
 print $fh "Classic Mac First Class Server Files\n";
 print $fh "====================================\n";
 print $fh "Creation Date\t\t\tFile Name\n";
