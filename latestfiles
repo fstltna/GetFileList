@@ -16,7 +16,7 @@ my $NumFiles = 0;
 chdir($RepoDir);
 system("$FindCommand");
 
-open(my $fh, '<:encoding(UTF-8)', $InputFile)
+open(my $fh, '<', $InputFile)
   or die "Could not open file '$InputFile' $!";
  
 while (my $row = <$fh>)
@@ -66,7 +66,7 @@ print $fh "Last Scan: $HumanDate\n";
 print $fh "Files found: $NumFiles\n";
 print $fh "Classic Mac First Class Server Files\n";
 print $fh "====================================\n";
-print $fh "Creation Date\t\t\tFile Name\n";
+print $fh "Creation Date\t\tFile Name\n";
 print $fh "-------------\t\t---------\n";
 
 foreach my $name (reverse sort keys %FileList)
