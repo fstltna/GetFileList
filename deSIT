@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $InputFile = "/tmp/files";
+my $RepoDir = "/var/www/html/jdownloads/MacOS\ Files";
+
+chdir($RepoDir);
+
+open(my $fh, '<:encoding(UTF-8)', $InputFile)
+  or die "Could not open file '$InputFile' $!";
+ 
+while (my $row = <$fh>)
+{
+	chomp $row;
+	my $length = length($row);
+	if (substr($row, -3) ne "SIT")
+	{
+		next;
+	}
+	print "File = $row\n";
+	my $NewFileName = substr($row, 0, $length - 3) . "sit";
+	print "File now = $NewFileName\n";
+	system ( "mv $row $NewFileName");
+}
+close ($fh);
+
+exit 0;

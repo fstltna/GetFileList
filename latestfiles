@@ -3,21 +3,25 @@ use strict;
 use warnings;
 
 use Time::Piece;
+use Data::Dump;
 
 my $InputFile = "/tmp/files";
 my $FindCommand = "find . -print > $InputFile";
 my %FileList = ();
-my $RepoDir = "/var/www/html/jdownloads/MacOS\ Files";
+my $RepoDir = "/var/www/html/jdownloads";
 my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
 my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
+my $InputFileSorted = "/tmp/filessorted";
+my $VERSION = "1.0.1";
 
 chdir($RepoDir);
 system("$FindCommand");
+system("sort --output=$InputFileSorted $InputFile");
 
-open(my $fh, '<', $InputFile)
-  or die "Could not open file '$InputFile' $!";
+open(my $fh, '<', $InputFileSorted)
+  or die "Could not open file '$InputFileSorted' $!";
  
 while (my $row = <$fh>)
 {
@@ -31,7 +35,6 @@ while (my $row = <$fh>)
 		# print "$row was a directory\n";
 		next;
 	}
-
 	if (index($row, "rsrc") != -1)
 	{
 		#print "Saw it\n";
@@ -51,12 +54,40 @@ while (my $row = <$fh>)
 		$atime,$mtime,$ctime,$blksize,$blocks)
 		= stat($row);
 	# print "modify time: $mtime\n";
-	$FileList{$mtime} = $row;
+	#$FileList{$mtime} = $row;
+	$FileList{$row} = $mtime;
 	$NumFiles += 1;
 
 	# print "$FileList{$mtime}\n";
+	# print "$FileList{$row}\n";
+	# print "$row\n";
 }
 close ($fh);
+
+sub fmt2 {
+   my ($bytes) = @_;
+   my @units = qw ( B KB MB GB TB );
+   #divide by 1024 whilst above
+   while ( $bytes > 1024 ) {
+      shift(@units); #drop one of the units prefixes until one 'fits'. 
+      $bytes /= 1024;
+   }
+   return sprintf( '%.3g%s', $bytes, $units[0] );
+}
+sub fmtsize
+{
+        my $bytes = shift;
+
+        my @variations = map { sprintf '%.3g%s', $bytes/1024 ** $_->[1], $_->[0] }
+            [ " bytes" => 0 ],
+            [ KB => 1 ],
+            [ MB => 2 ],
+            [ GB => 3 ];
+
+        dd \@variations;
+
+        return ( sort { length $a <=> length $b } @variations ) [0];
+}
 
 open($fh, '>', $UnixFile)
   or die "Could not open file '$UnixFile' $!";
@@ -64,16 +95,58 @@ open($fh, '>', $UnixFile)
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan: $HumanDate\n";
 print $fh "Files found: $NumFiles\n";
-print $fh "Classic Mac First Class Server Files\n";
-print $fh "====================================\n";
-print $fh "Creation Date\t\tFile Name\n";
-print $fh "-------------\t\t---------\n";
+print $fh "Apple ][ City Latest Files v$VERSION\n";
+print $fh "==================================\n";
+print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
+print $fh "-------------\t\t\t---------\t----------\n";
 
-foreach my $name (reverse sort keys %FileList)
+open(my $filelist, '<', $InputFileSorted)
+  or die "Could not open file '$InputFileSorted' $!";
+while(my $CurFile = <$filelist>)
 {
-	$HumanDate = localtime($name)->strftime('%F %T'); # adjust format to taste
-	print $fh "$HumanDate\t$FileList{$name}\n";
+	chomp($CurFile);
+	if (length($CurFile) <= 2)
+	{
+		next;
+	}
+	$CurFile = substr($CurFile, 2);
+	#print "File is '$CurFile'\n";
+	#	my $HumanDate = localtime(my $name)->strftime('%F %T'); # adjust format to taste
+	if (($CurFile eq "..")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||($CurFile eq "./LatestFiles.txt")||($CurFile eq "./LatestFilesUnix.txt"))
+        {
+                next;
+        }
+        if (-d $CurFile)
+        {
+                # print "$CurFile was a directory\n";
+                next;
+        }
+        if (index($CurFile, "rsrc") != -1)
+        {
+                #print "Saw it\n";
+                next;
+        }
+	if ($CurFile eq "")
+	{
+		next;
+	}
+
+	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
+		$atime,$mtime,$ctime,$blksize,$blocks)
+		= stat($CurFile);
+	$HumanDate = localtime($CurFile)->strftime('%F %T'); # adjust format to taste
+	$mtime = localtime($mtime);
+	$size = fmt2($size);
+	print $fh "$mtime\t$size\t\t$CurFile\n";
 }
-close ($fh);
+close($filelist);
+
+##foreach my $name (reverse sort keys %FileList)
+#foreach my $name (sort keys %FileList)
+#{
+#	$HumanDate = localtime($name)->strftime('%F %T'); # adjust format to taste
+#	print $fh "$HumanDate\t$FileList{$name}\n";
+#}
+#close ($fh);
 system($ConversionCommand);
 exit 0;
