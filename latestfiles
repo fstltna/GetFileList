@@ -14,7 +14,7 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.0.1";
+my $VERSION = "1.1.0";
 
 chdir($RepoDir);
 system("$FindCommand");
