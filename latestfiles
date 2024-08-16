@@ -19,6 +19,7 @@ my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
 my $SORTMODE = "name";
+my @DateSort;
 
 # See if the EDITOR env var is set, use it if so
 if ($ENV{'EDITOR'})
@@ -86,7 +87,7 @@ open(my $fh, '<', $InputFileSorted)
 while (my $row = <$fh>)
 {
 	chomp $row;
-	#print "row = '$row'\n";
+	# print "row = '$row'\n";
 	my $shortname = substr($row, 0, 3);
 	# print "shortname = '$shortname'\n";
 	if (($row eq ".")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt")||($row eq "./LatestFilesUnix.txt")||($shortname eq "./_"))
@@ -122,7 +123,7 @@ while (my $row = <$fh>)
 		print "File is '$row'\n";
 		exit 0;
         }
-	#print "modify time: $mtime\n";
+	# print "modify time: $mtime\n";
 	if ($SORTMODE eq "date")
 	{
 		$FileList{$mtime} = $row;
@@ -139,9 +140,6 @@ while (my $row = <$fh>)
 	# print "$row\n";
 }
 
-# sorting of the hash according
-# to ASCII code of values of Hash
-#foreach my $mydate (sort values %FileList) 	# ZZZ
 foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 {
 	# print "$mydate\n";
@@ -152,10 +150,11 @@ foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 	}
 	if (! defined($FileList{$mydate}))
 	{
-		#print "mydate = $mydate\n";
+		# print "mydate = $mydate\n";
 		print "FileList doesnt exist\n";
 	}
-	print "$HumanDate\t$FileList{$mydate}\n";	# ZZZ
+	# print "$HumanDate\t$FileList{$mydate}\n";	# ZZZ
+	push (@DateSort, "$HumanDate\t$FileList{$mydate}");
 #	print $fh "$HumanDate\t$FileList{$mydate}\n";
 }
 
@@ -197,6 +196,16 @@ print $fh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
 print $fh "-------------\t\t\t---------\t----------\n";
 
+if ($SORTMODE eq "date")
+{
+	foreach(@DateSort)
+	{
+		# print "Saw $_\n";
+		print $fh "Saw $_\n";
+	}
+	exit 0;
+}
+
 open(my $filelist, '<', $InputFileSorted)
   or die "Could not open file '$InputFileSorted' $!";
 while(my $CurFile = <$filelist>)
@@ -207,7 +216,7 @@ while(my $CurFile = <$filelist>)
 		next;
 	}
 	$CurFile = substr($CurFile, 2);
-	#print "File is '$CurFile'\n";
+	# print "File is '$CurFile'\n";
 	#	my $HumanDate = localtime(my $name)->strftime('%F %T'); # adjust format to taste
 	if (($CurFile eq ".")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||($CurFile eq "./LatestFiles.txt")||($CurFile eq "./LatestFilesUnix.txt")||(substr($CurFile, 0, 1) eq "_"))
         {
@@ -220,7 +229,7 @@ while(my $CurFile = <$filelist>)
         }
         if (index($CurFile, "rsrc") != -1)
         {
-                #print "Saw it\n";
+                # print "Saw rsrc in '$CurFile'\n";
                 next;
         }
 	if ($CurFile eq "")
