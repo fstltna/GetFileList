@@ -28,8 +28,16 @@ if ($ENV{'EDITOR'})
 my $num_args = $#ARGV + 1;
 if ($num_args != 0)
 {
-	system("$EDITOR $filename");
-	exit 0;
+	if ($ARGV[0] eq "prefs")
+	{
+		system("$EDITOR $filename");
+		exit 0;
+	}
+	if (($ARGV[0] eq "help") || ($num_args > 1))
+	{
+		print "Usage: latestfiles [prefs|help]\n";
+		exit 0;
+	}
 }
 
 my $defaultfile = <<'END_TEMPLATE';
