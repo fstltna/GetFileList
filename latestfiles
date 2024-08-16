@@ -15,6 +15,52 @@ my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt >
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
 my $VERSION = "1.1.0";
+my $filename = "/root/.latestrc";
+my $ServerName = "";
+my $EDITOR = "/usr/bin/nano";
+
+# See if the EDITOR env var is set, use it if so
+if ($ENV{'EDITOR'})
+{
+        $EDITOR = $ENV{'EDITOR'};
+}
+
+my $num_args = $#ARGV + 1;
+if ($num_args != 0)
+{
+	system("$EDITOR $filename");
+	exit 0;
+}
+
+my $defaultfile = <<'END_TEMPLATE';
+# Put Server name here:
+Classic Macs OSX Cat Editions
+# Get more apps like this at https://marisa-apps.retro-os.live
+END_TEMPLATE
+
+if (! -f $filename)
+{
+	print "Settings file $filename not found, creating it...\n";
+	open(FILEOUT, '>', $filename) or die $!;
+	#        print FILEOUT "$defaultfile\n";
+        print FILEOUT "$defaultfile";
+	close(FILEOUT);
+	system("$EDITOR $filename");
+}
+
+open(FILEIN, '<', $filename) or die $!;
+while(<FILEIN>)
+{
+	# print $_;
+	if ((substr($_, 0, 1) eq "#") || ($_ eq ""))
+	{
+		# skip over comments
+		next;
+	}
+	chop();
+	$ServerName = $_;
+}
+close(FILEIN);
 
 chdir($RepoDir);
 system("$FindCommand");
@@ -95,8 +141,8 @@ open($fh, '>', $UnixFile)
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan: $HumanDate\n";
 print $fh "Files found: $NumFiles\n";
-print $fh "Apple ][ City Latest Files v$VERSION\n";
-print $fh "==================================\n";
+print $fh "$ServerName Latest Files v$VERSION\n";
+print $fh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
 print $fh "-------------\t\t\t---------\t----------\n";
 
