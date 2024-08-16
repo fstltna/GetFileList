@@ -8,6 +8,7 @@ use Data::Dump;
 my $InputFile = "/tmp/files";
 my $FindCommand = "find . -print > $InputFile";
 my %FileList = ();
+my %FileSize = ();
 my $RepoDir = "/var/www/html/jdownloads";
 my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
 my $OutputFile = "$RepoDir/LatestFiles.txt";
@@ -124,9 +125,11 @@ while (my $row = <$fh>)
 		exit 0;
         }
 	# print "modify time: $mtime\n";
+	$size = fmt2($size);
 	if ($SORTMODE eq "date")
 	{
 		$FileList{$mtime} = $row;
+		$FileSize{$mtime} = $size;
 		# print "FileList = $FileList{$mtime}\n";
 	}
 	else
@@ -154,8 +157,7 @@ foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 		print "FileList doesnt exist\n";
 	}
 	# print "$HumanDate\t$FileList{$mydate}\n";	# ZZZ
-	push (@DateSort, "$HumanDate\t$FileList{$mydate}");
-#	print $fh "$HumanDate\t$FileList{$mydate}\n";
+	push (@DateSort, "$HumanDate\t$FileSize{$mydate}\t\t$FileList{$mydate}");
 }
 
 close ($fh);
@@ -193,16 +195,17 @@ print $fh "Last Scan: $HumanDate\n";
 print $fh "Files found: $NumFiles\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
 print $fh "===================================================\n";
-print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
-print $fh "-------------\t\t\t---------\t----------\n";
+print $fh "Upload Date\t\tSize\t\tFile Name\n";
+print $fh "-------------\t\t---------\t----------\n";
 
 if ($SORTMODE eq "date")
 {
 	foreach(@DateSort)
 	{
 		# print "Saw $_\n";
-		print $fh "Saw $_\n";
+		print $fh "$_\n";
 	}
+	system($ConversionCommand);
 	exit 0;
 }
 
