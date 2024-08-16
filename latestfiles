@@ -17,7 +17,8 @@ my $InputFileSorted = "/tmp/filessorted";
 my $VERSION = "1.1.0";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
-my $EDITOR = "/usr/bin/nano";
+my $EDITOR = "nano";
+my $SORTMODE = "name";
 
 # See if the EDITOR env var is set, use it if so
 if ($ENV{'EDITOR'})
@@ -35,7 +36,13 @@ if ($num_args != 0)
 	}
 	if (($ARGV[0] eq "help") || ($num_args > 1))
 	{
-		print "Usage: latestfiles [prefs|help]\n";
+		print "Usage: latestfiles [prefs|help|date]\n";
+		exit 0;
+	}
+	if ($ARGV[0] eq "date")
+	{
+		print "SORTMODE = $SORTMODE\n";
+		$SORTMODE = "date";
 		exit 0;
 	}
 }
@@ -80,7 +87,7 @@ open(my $fh, '<', $InputFileSorted)
 while (my $row = <$fh>)
 {
 	chomp $row;
-	if (($row eq "..")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt")||($row eq "./LatestFilesUnix.txt"))
+	if (($row eq ".")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt")||($row eq "./LatestFilesUnix.txt"))
 	{
 		next;
 	}
@@ -166,7 +173,7 @@ while(my $CurFile = <$filelist>)
 	$CurFile = substr($CurFile, 2);
 	#print "File is '$CurFile'\n";
 	#	my $HumanDate = localtime(my $name)->strftime('%F %T'); # adjust format to taste
-	if (($CurFile eq "..")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||($CurFile eq "./LatestFiles.txt")||($CurFile eq "./LatestFilesUnix.txt"))
+	if (($CurFile eq ".")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||($CurFile eq "./LatestFiles.txt")||($CurFile eq "./LatestFilesUnix.txt"))
         {
                 next;
         }
