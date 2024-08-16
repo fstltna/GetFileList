@@ -41,7 +41,7 @@ if ($num_args != 0)
 	}
 	if ($ARGV[0] eq "date")
 	{
-		print "SORTMODE = $SORTMODE\n";
+		# print "SORTMODE = $SORTMODE\n";
 		$SORTMODE = "date";
 	}
 }
@@ -117,11 +117,16 @@ while (my $row = <$fh>)
 	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
 		$atime,$mtime,$ctime,$blksize,$blocks)
 		= stat($row);
-print "modify time: $mtime\n";
+	if (! defined($mtime))
+        {
+		print "File is '$row'\n";
+		exit 0;
+        }
+	#print "modify time: $mtime\n";
 	if ($SORTMODE eq "date")
 	{
 		$FileList{$mtime} = $row;
-		print "File = '$FileList{$mtime}'\n";	# ZZZ
+		# print "FileList = $FileList{$mtime}\n";
 	}
 	else
 	{
@@ -133,6 +138,27 @@ print "modify time: $mtime\n";
 	# print "$FileList{$row}\n";
 	# print "$row\n";
 }
+
+# sorting of the hash according
+# to ASCII code of values of Hash
+#foreach my $mydate (sort values %FileList) 	# ZZZ
+foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
+{
+	# print "$mydate\n";
+	my $HumanDate = localtime($mydate)->strftime('%F %T'); # adjust format to taste
+	if (! defined($mydate))
+	{
+		print "mydate doesnt exist\n";
+	}
+	if (! defined($FileList{$mydate}))
+	{
+		#print "mydate = $mydate\n";
+		print "FileList doesnt exist\n";
+	}
+	print "$HumanDate\t$FileList{$mydate}\n";	# ZZZ
+#	print $fh "$HumanDate\t$FileList{$mydate}\n";
+}
+
 close ($fh);
 
 sub fmt2 {
