@@ -164,7 +164,7 @@ foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 	}
 	#print "$FileSize{$mydate}\n";
 	#print "$HumanDate\t$FileSize{$mydate}\t$FileList{$mydate}\n";	# ZZZ
-	push (@DateSort, "$HumanDate\t$FileSize{$mydate}\t\t$FileList{$mydate}");
+	push (@DateSort, "$HumanDate\t\t$FileSize{$mydate}\t\t$FileList{$mydate}");
 }
 
 close ($fh);
@@ -202,8 +202,8 @@ print $fh "Last Scan: $HumanDate\n";
 print $fh "Files found: $NumFiles\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
 print $fh "===================================================\n";
-print $fh "Upload Date\t\tSize\t\tFile Name\n";
-print $fh "-------------\t\t---------\t----------\n";
+print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
+print $fh "-------------\t\t\t---------\t----------\n";
 
 if ($SORTMODE eq "date")
 {
