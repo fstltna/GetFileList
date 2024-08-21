@@ -156,7 +156,14 @@ foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 		# print "mydate = $mydate\n";
 		print "FileList doesnt exist\n";
 	}
-	# print "$HumanDate\t$FileList{$mydate}\n";	# ZZZ
+	if (! defined($FileSize{$mydate}))
+	{
+		# print "$FileSize{$mydate}\n";
+		print "FileSize doesnt exist\n";
+		$FileSize{$mydate} = 0;
+	}
+	#print "$FileSize{$mydate}\n";
+	#print "$HumanDate\t$FileSize{$mydate}\t$FileList{$mydate}\n";	# ZZZ
 	push (@DateSort, "$HumanDate\t$FileSize{$mydate}\t\t$FileList{$mydate}");
 }
 
