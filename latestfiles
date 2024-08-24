@@ -15,7 +15,7 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.1.0";
+my $VERSION = "1.2.0";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -36,21 +36,28 @@ if ($num_args != 0)
 		system("$EDITOR $filename");
 		exit 0;
 	}
-	if (($ARGV[0] eq "help") || ($num_args > 1))
+	elsif (($ARGV[0] eq "help") || ($num_args > 1))
 	{
 		print "Usage: latestfiles [prefs|help|date]\n";
 		exit 0;
 	}
-	if ($ARGV[0] eq "date")
+	elsif ($ARGV[0] eq "date")
 	{
 		# print "SORTMODE = $SORTMODE\n";
 		$SORTMODE = "date";
+	}
+	elsif ($ARGV[0] eq "name")
+	{
+		# print "SORTMODE = $SORTMODE\n";
+		$SORTMODE = "name";
 	}
 }
 
 my $defaultfile = <<'END_TEMPLATE';
 # Put Server name here:
 Classic Macs OSX Cat Editions
+# Put default mode here: "date" or "name"
+date
 # Get more apps like this at https://marisa-apps.retro-os.live
 END_TEMPLATE
 
@@ -65,6 +72,7 @@ if (! -f $filename)
 }
 
 open(FILEIN, '<', $filename) or die $!;
+my $LastLine = 0;
 while(<FILEIN>)
 {
 	# print $_;
@@ -74,7 +82,23 @@ while(<FILEIN>)
 		next;
 	}
 	chop();
-	$ServerName = $_;
+	if ($LastLine == 0)
+	{
+		$ServerName = $_;
+		$LastLine++;
+		# print "saw server name '$ServerName'\n";
+		next;
+	}
+	if ($LastLine == 1)
+	{
+		$SORTMODE = $_;
+		# print "saw sortmode '$SORTMODE'\n";
+		if (($SORTMODE ne "date") && ($SORTMODE ne "name"))
+		{
+			$SORTMODE = "name";
+		}
+		$LastLine++;
+	}
 }
 close(FILEIN);
 
