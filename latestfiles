@@ -28,31 +28,6 @@ if ($ENV{'EDITOR'})
         $EDITOR = $ENV{'EDITOR'};
 }
 
-my $num_args = $#ARGV + 1;
-if ($num_args != 0)
-{
-	if ($ARGV[0] eq "prefs")
-	{
-		system("$EDITOR $filename");
-		exit 0;
-	}
-	elsif (($ARGV[0] eq "help") || ($num_args > 1))
-	{
-		print "Usage: latestfiles [prefs|help|date]\n";
-		exit 0;
-	}
-	elsif ($ARGV[0] eq "date")
-	{
-		# print "SORTMODE = $SORTMODE\n";
-		$SORTMODE = "date";
-	}
-	elsif ($ARGV[0] eq "name")
-	{
-		# print "SORTMODE = $SORTMODE\n";
-		$SORTMODE = "name";
-	}
-}
-
 my $defaultfile = <<'END_TEMPLATE';
 # Put Server name here:
 Classic Macs OSX Cat Editions
@@ -101,6 +76,31 @@ while(<FILEIN>)
 	}
 }
 close(FILEIN);
+
+my $num_args = $#ARGV + 1;
+if ($num_args != 0)
+{
+        if ($ARGV[0] eq "prefs")
+        {
+                system("$EDITOR $filename");
+                exit 0;
+        }
+        elsif (($ARGV[0] eq "help") || ($num_args > 1))
+        {
+                print "Usage: latestfiles [prefs|help|date]\n";
+                exit 0;
+        }
+        elsif ($ARGV[0] eq "date")
+        {
+                # print "SORTMODE = $SORTMODE\n";
+                $SORTMODE = "date";
+        }
+        elsif ($ARGV[0] eq "name")
+        {
+                # print "SORTMODE = $SORTMODE\n";
+                $SORTMODE = "name";
+        }
+}
 
 chdir($RepoDir);
 system("$FindCommand");
