@@ -15,17 +15,26 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.0";
+my $VERSION = "1.2.1";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
 my $SORTMODE = "name";
 my @DateSort;
+my $DEBUGMODE = "no";
 
 # See if the EDITOR env var is set, use it if so
 if ($ENV{'EDITOR'})
 {
         $EDITOR = $ENV{'EDITOR'};
+}
+
+sub DebugPrint
+{
+	if ($DEBUGMODE eq "debug")
+	{
+		print $_;
+	}
 }
 
 my $defaultfile = <<'END_TEMPLATE';
@@ -61,13 +70,13 @@ while(<FILEIN>)
 	{
 		$ServerName = $_;
 		$LastLine++;
-		# print "saw server name '$ServerName'\n";
+		DebugPrint("saw server name '$ServerName'\n");
 		next;
 	}
 	if ($LastLine == 1)
 	{
 		$SORTMODE = $_;
-		# print "saw sortmode '$SORTMODE'\n";
+		DebugPrint("saw sortmode '$SORTMODE'\n");
 		if (($SORTMODE ne "date") && ($SORTMODE ne "name"))
 		{
 			$SORTMODE = "name";
@@ -87,18 +96,23 @@ if ($num_args != 0)
         }
         elsif (($ARGV[0] eq "help") || ($num_args > 1))
         {
-                print "Usage: latestfiles [prefs|help|date]\n";
+                print "Usage: latestfiles [prefs|help|date|debug]\n";
                 exit 0;
         }
         elsif ($ARGV[0] eq "date")
         {
-                # print "SORTMODE = $SORTMODE\n";
+                DebugPrint("SORTMODE = $SORTMODE\n");
                 $SORTMODE = "date";
         }
         elsif ($ARGV[0] eq "name")
         {
-                # print "SORTMODE = $SORTMODE\n";
+                DebugPrint("SORTMODE = $SORTMODE\n");
                 $SORTMODE = "name";
+        }
+        elsif ($ARGV[0] eq "debug")
+        {
+                DebugPrint("DEBUGTMODE = $DEBUGMODE\n");
+                $DEBUGMODE = "debug";
         }
 }
 
@@ -117,17 +131,17 @@ while (my $row = <$fh>)
 	# print "shortname = '$shortname'\n";
 	if (($row eq ".")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt")||($row eq "./LatestFilesUnix.txt")||($shortname eq "./_"))
 	{
-		# print "Skipping $row\n";
+		DebugPrint("Skipping $row\n");
 		next;
 	}
 	if (-d $row)
 	{
-		# print "$row was a directory\n";
+		DebugPrint("$row was a directory\n");
 		next;
 	}
 	if ((index($row, "rsrc") != -1)||(index($row, "index.html") != -1))
 	{
-		# print "submatch $row\n";
+		DebugPrint("submatch $row\n");
 		next;
 	}
 	#my $substring = $row;
@@ -154,7 +168,7 @@ while (my $row = <$fh>)
 	{
 		$FileList{$mtime} = $row;
 		$FileSize{$mtime} = $size;
-		# print "FileList = $FileList{$mtime}\n";
+		DebugPrint("FileList = $FileList{$mtime}\n");
 	}
 	else
 	{
@@ -173,17 +187,17 @@ foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 	my $HumanDate = localtime($mydate)->strftime('%F %T'); # adjust format to taste
 	if (! defined($mydate))
 	{
-		print "mydate doesnt exist\n";
+		DebugPrint("mydate doesnt exist\n");
 	}
 	if (! defined($FileList{$mydate}))
 	{
 		# print "mydate = $mydate\n";
-		print "FileList doesnt exist\n";
+		DebugPrint("FileList doesnt exist\n");
 	}
 	if (! defined($FileSize{$mydate}))
 	{
 		# print "$FileSize{$mydate}\n";
-		print "FileSize doesnt exist\n";
+		DebugPrint("FileSize doesnt exist\n");
 		$FileSize{$mydate} = 0;
 	}
 	#print "$FileSize{$mydate}\n";
@@ -258,12 +272,12 @@ while(my $CurFile = <$filelist>)
         }
         if (-d $CurFile)
         {
-                # print "$CurFile was a directory\n";
+                DebugPrint("$CurFile was a directory\n");
                 next;
         }
         if (index($CurFile, "rsrc") != -1)
         {
-                # print "Saw rsrc in '$CurFile'\n";
+                DebugPrint("Saw rsrc in '$CurFile'\n");
                 next;
         }
 	if ($CurFile eq "")
