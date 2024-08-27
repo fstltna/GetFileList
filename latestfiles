@@ -37,6 +37,9 @@ sub DebugPrint
 	}
 }
 
+print  "latestfiles file listing app by MarisaG v$VERSION\n";
+print  "===================================================\n";
+
 my $defaultfile = <<'END_TEMPLATE';
 # Put Server name here:
 Classic Macs OSX Cat Editions
@@ -116,6 +119,7 @@ if ($num_args != 0)
         }
 }
 
+print "Scanning for files: ";
 chdir($RepoDir);
 system("$FindCommand");
 system("sort --output=$InputFileSorted $InputFile");
@@ -181,6 +185,7 @@ while (my $row = <$fh>)
 	# print "$row\n";
 }
 
+print "Done\nProcessing Files: ";
 foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 {
 	# print "$mydate\n";
@@ -206,7 +211,6 @@ foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
 }
 
 close ($fh);
-
 sub fmt2 {
    my ($bytes) = @_;
    my @units = qw ( B KB MB GB TB );
@@ -294,6 +298,7 @@ while(my $CurFile = <$filelist>)
 	print $fh "$mtime\t$size\t\t$CurFile\n";
 }
 close($filelist);
+print "Done\n";
 
 ##foreach my $name (reverse sort keys %FileList)
 #foreach my $name (sort keys %FileList)
