@@ -1,4 +1,4 @@
-# GetFileList v1.2.1
+# GetFileList v1.2.2
 Reads directory and produces a date or name sorted list of the files
 
 --
