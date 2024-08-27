@@ -15,7 +15,7 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.2";
+my $VERSION = "1.2.3";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -255,6 +255,7 @@ if ($SORTMODE eq "date")
 		print $fh "$_\n";
 	}
 	system($ConversionCommand);
+	print "Done\n";
 	exit 0;
 }
 
