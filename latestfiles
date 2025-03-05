@@ -15,7 +15,7 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.5";
+my $VERSION = "1.2.6";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -134,7 +134,7 @@ while (my $row = <$fh>)
 	# print "row = '$row'\n";
 	my $shortname = substr($row, 0, 3);
 	# print "shortname = '$shortname'\n";
-	if (($row eq ".")||($row eq "..")||($row eq "./Desktop Folder")||($row eq "./LatestFiles.txt")||($row eq "./LatestFilesUnix.txt")||($shortname eq "./_"))
+	if (($row eq ".")||($row eq "..")||($row eq "./Desktop Folder")||($shortname eq "./_"))
 	{
 		DebugPrint("Skipping $row\n");
 		next;
@@ -149,6 +149,16 @@ while (my $row = <$fh>)
 		DebugPrint("submatch $row\n");
 		next;
 	}
+        if (substr($row, -15) eq "LatestFiles.txt")
+        {
+                DebugPrint("$row was a blocked file\n");
+                next;
+        }
+        if (substr($row, -19) eq "LatestFilesUnix.txt")
+        {
+                DebugPrint("$row was a blocked file\n");
+                next;
+        }
 	#my $substring = $row;
 	#if (my $mystring =~ /\Q\.rsrc\E/)
 	#if (my $mystring =~ /rsrc/)
@@ -272,16 +282,16 @@ while(my $CurFile = <$filelist>)
 	$CurFile = substr($CurFile, 2);
 	# print "File is '$CurFile'\n";
 	#	my $HumanDate = localtime(my $name)->strftime('%F %T'); # adjust format to taste
-	if (($CurFile eq ".")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||($CurFile eq "./LatestFiles.txt")||($CurFile eq "./LatestFilesUnix.txt")||(substr($CurFile, 0, 1) eq "_"))
+	if (($CurFile eq ".")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||(substr($CurFile, 0, 1) eq "_"))
         {
                 next;
         }
-        if (index($CurFile, "LatestFiles.txt") != -1)
+        if (substr($CurFile, -15) eq "LatestFiles.txt")
         {
                 DebugPrint("$CurFile was a blocked file\n");
                 next;
         }
-        if (index($CurFile, "LatestFilesUnix.txt") != -1)
+        if (substr($CurFile, -19) eq "LatestFilesUnix.txt")
         {
                 DebugPrint("$CurFile was a blocked file\n");
                 next;
