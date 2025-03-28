@@ -15,13 +15,15 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.7";
+my $VERSION = "1.2.8";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
 my $SORTMODE = "name";
 my @DateSort;
 my $DEBUGMODE = "no";
+my $DownloadNotice = "For best results download these files with FTP or Hotline
+";
 
 # See if the EDITOR env var is set, use it if so
 if ($ENV{'EDITOR'})
@@ -45,6 +47,8 @@ my $defaultfile = <<'END_TEMPLATE';
 Classic Macs OSX Cat Editions
 # Put default mode here: "date" or "name"
 date
+# Download Notice
+For best results download these files with FTP or Hotline
 # Get more apps like this at https://marisa-apps.retro-os.live
 END_TEMPLATE
 
@@ -76,7 +80,7 @@ while(<FILEIN>)
 		DebugPrint("saw server name '$ServerName'\n");
 		next;
 	}
-	if ($LastLine == 1)
+	elsif ($LastLine == 1)
 	{
 		$SORTMODE = $_;
 		DebugPrint("saw sortmode '$SORTMODE'\n");
@@ -85,6 +89,13 @@ while(<FILEIN>)
 			$SORTMODE = "name";
 		}
 		$LastLine++;
+	}
+	elsif ($LastLine == 2)
+	{
+		$DownloadNotice = $_;
+		$LastLine++;
+		DebugPrint("saw download notice '$DownloadNotice'\n");
+		next;
 	}
 }
 close(FILEIN);
@@ -253,7 +264,7 @@ open($fh, '>', $UnixFile)
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan:\t$HumanDate\n";
 print $fh "Files found:\t$NumFiles\n";
-print $fh "For best results download these files with FTP or Hotline\n\n";
+print $fh "$DownloadNotice\n\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
 print $fh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
