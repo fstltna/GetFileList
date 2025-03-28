@@ -253,7 +253,7 @@ open($fh, '>', $UnixFile)
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan: $HumanDate\n";
 print $fh "Files found: $NumFiles\n";
-print $fh "For best results download these files with FTP or Hotline\n";
+print $fh "For best results download these files with FTP or Hotline\n\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
 print $fh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
