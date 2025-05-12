@@ -15,7 +15,7 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.8";
+my $VERSION = "1.2.9";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -127,6 +127,11 @@ if ($num_args != 0)
         {
                 DebugPrint("DEBUGTMODE = $DEBUGMODE\n");
                 $DEBUGMODE = "debug";
+        }
+	else
+        {
+                print "Usage: latestfiles [prefs|help|date|debug]\n";
+                exit 0;
         }
 }
 print  "Sorting by: $SORTMODE\n";
