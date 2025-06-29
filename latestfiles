@@ -15,7 +15,7 @@ my $OutputFile = "$RepoDir/LatestFiles.txt";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.9";
+my $VERSION = "1.2.10";
 my $filename = "/root/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -155,22 +155,22 @@ while (my $row = <$fh>)
 		DebugPrint("Skipping $row\n");
 		next;
 	}
-	if (-d $row)
+	elsif (-d $row)
 	{
 		DebugPrint("$row was a directory\n");
 		next;
 	}
-	if ((index($row, "rsrc") != -1)||(index($row, "index.html") != -1))
+	elsif ((index($row, "rsrc") != -1)||(index($row, 'index.html') != -1))
 	{
 		DebugPrint("submatch $row\n");
 		next;
 	}
-        if (substr($row, -15) eq "LatestFiles.txt")
+        elsif (substr($row, -15) eq "LatestFiles.txt")
         {
                 DebugPrint("$row was a blocked file\n");
                 next;
         }
-        if (substr($row, -19) eq "LatestFilesUnix.txt")
+        elsif (substr($row, -19) eq "LatestFilesUnix.txt")
         {
                 DebugPrint("$row was a blocked file\n");
                 next;
@@ -303,27 +303,31 @@ while(my $CurFile = <$filelist>)
         {
                 next;
         }
-        if (substr($CurFile, -15) eq "LatestFiles.txt")
+        elsif (substr($CurFile, -15) eq "LatestFiles.txt")
         {
                 DebugPrint("$CurFile was a blocked file\n");
                 next;
         }
-        if (substr($CurFile, -19) eq "LatestFilesUnix.txt")
+        elsif (substr($CurFile, -19) eq "LatestFilesUnix.txt")
         {
                 DebugPrint("$CurFile was a blocked file\n");
                 next;
         }
-        if (-d $CurFile)
+        elsif (-d $CurFile)
         {
                 DebugPrint("$CurFile was a directory\n");
                 next;
         }
-        if (index($CurFile, "rsrc") != -1)
+        elsif (index($CurFile, "rsrc") != -1)
         {
                 DebugPrint("Saw rsrc in '$CurFile'\n");
                 next;
         }
-	if ($CurFile eq "")
+	elsif (index($CurFile, 'index.html') != -1)
+	{
+		next;
+	}
+	elsif ($CurFile eq "")
 	{
 		next;
 	}
