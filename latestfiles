@@ -12,10 +12,11 @@ my %FileSize = ();
 my $RepoDir = "/var/www/html/jdownloads";
 my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
 my $OutputFile = "$RepoDir/LatestFiles.txt";
+my $HTMLFile = "$RepoDir/LatestFiles.html";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.2.11";
+my $VERSION = "1.3.0";
 my $filename = "$ENV{HOME}/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -24,6 +25,18 @@ my @DateSort;
 my $DEBUGMODE = "no";
 my $DownloadNotice = "For best results download these files with FTP or Hotline
 ";
+my $HTML_Headers = <<"END_MESSAGE";
+<html>
+<header>
+<title>latestfiles file listing tool</title>
+</header>
+<body>
+END_MESSAGE
+
+my $HTML_Footers = <<"END_MESSAGE2";
+</body>
+</html>
+END_MESSAGE2
 
 # See if the EDITOR env var is set, use it if so
 if ($ENV{'EDITOR'})
@@ -100,6 +113,16 @@ while(<FILEIN>)
 }
 close(FILEIN);
 
+my $HTML_Headers = <<"END_MESSAGE";
+<html>
+<header>
+<title>latestfiles file listing tool</title>
+</header>
+<body>
+<h1 align=center>latestfiles file listing tool</h1>
+<h2 align=center>$DownloadNotice</h2>
+END_MESSAGE
+
 my $num_args = $#ARGV + 1;
 if ($num_args != 0)
 {
@@ -171,6 +194,11 @@ while (my $row = <$fh>)
                 next;
         }
         elsif (substr($row, -19) eq "LatestFilesUnix.txt")
+        {
+                DebugPrint("$row was a blocked file\n");
+                next;
+        }
+        elsif (substr($row, -20) eq "LatestFilesUnix.html")
         {
                 DebugPrint("$row was a blocked file\n");
                 next;
@@ -264,16 +292,27 @@ sub fmtsize
 }
 
 open($fh, '>', $UnixFile)
-  or die "Could not open file '$UnixFile' $!";
+  or die "Could not create file '$UnixFile' $!";
+open(my $htmlfh, '>', $HTMLFile)
+  or die "Could not create file '$HTMLFile' $!";
+
+print $htmlfh "$HTML_Headers";
 
 my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
 print $fh "Last Scan:\t$HumanDate\n";
+print $htmlfh "Last Scan:\t$HumanDate<br>\n";
 print $fh "Files found:\t$NumFiles\n";
+print $htmlfh "Files found:\t$NumFiles<br>\n";
 print $fh "$DownloadNotice\n\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
+print $htmlfh "$ServerName Latest Files v$VERSION<br>\n";
 print $fh "===================================================\n";
+print $htmlfh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
+print $htmlfh "<table border=2>\n";
+print $htmlfh "<tr><th>Upload Date</th><th>Size</th><th>File Name</th></tr>\n";
 print $fh "-------------\t\t\t---------\t----------\n";
+#print $htmlfh "<tr><td>-------------</td><td>---------</td><td>----------</td></tr>\n";
 
 if ($SORTMODE eq "date")
 {
@@ -339,8 +378,11 @@ while(my $CurFile = <$filelist>)
 	$mtime = localtime($mtime);
 	$size = fmt2($size);
 	print $fh "$mtime\t$size\t\t$CurFile\n";
+	print $htmlfh "<tr><td>$mtime</td><td>$size</td><td>$CurFile</td></tr>\n";
 }
+print $htmlfh "$HTML_Footers\n";
 close($filelist);
+close($htmlfh);
 print "Done\n";
 
 ##foreach my $name (reverse sort keys %FileList)
