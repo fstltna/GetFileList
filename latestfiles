@@ -22,16 +22,9 @@ my $ServerName = "";
 my $EDITOR = "nano";
 my $SORTMODE = "name";
 my @DateSort;
-my $DEBUGMODE = "no";
+my $DEBUGMODE = "";
 my $DownloadNotice = "For best results download these files with FTP or Hotline
 ";
-my $HTML_Headers = <<"END_MESSAGE";
-<html>
-<header>
-<title>latestfiles file listing tool</title>
-</header>
-<body>
-END_MESSAGE
 
 my $HTML_Footers = <<"END_MESSAGE2";
 </body>
@@ -198,7 +191,7 @@ while (my $row = <$fh>)
                 DebugPrint("$row was a blocked file\n");
                 next;
         }
-        elsif (substr($row, -20) eq "LatestFilesUnix.html")
+        elsif (substr($row, -16) eq "LatestFiles.html")
         {
                 DebugPrint("$row was a blocked file\n");
                 next;
@@ -307,7 +300,7 @@ print $fh "$DownloadNotice\n\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
 print $htmlfh "$ServerName Latest Files v$VERSION<br>\n";
 print $fh "===================================================\n";
-print $htmlfh "===================================================\n";
+#print $htmlfh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
 print $htmlfh "<table border=2>\n";
 print $htmlfh "<tr><th>Upload Date</th><th>Size</th><th>File Name</th></tr>\n";
@@ -343,6 +336,11 @@ while(my $CurFile = <$filelist>)
                 next;
         }
         elsif (substr($CurFile, -15) eq "LatestFiles.txt")
+        {
+                DebugPrint("$CurFile was a blocked file\n");
+                next;
+        }
+        elsif (substr($CurFile, -16) eq "LatestFiles.html")
         {
                 DebugPrint("$CurFile was a blocked file\n");
                 next;
