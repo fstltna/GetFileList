@@ -6,7 +6,7 @@ use Time::Piece;
 use Data::Dump;
 
 my $InputFile = "/tmp/files";
-my $FindCommand = "find . -print > $InputFile";
+my $FindCommand = "find -L . -print > $InputFile";
 my %FileList = ();
 my %FileSize = ();
 my $RepoDir = "/var/www/html/jdownloads";
