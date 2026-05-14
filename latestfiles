@@ -9,20 +9,17 @@ my $InputFile = "/tmp/files";
 my $FindCommand = "find -L . -print > $InputFile";
 my %FileList = ();
 my %FileSize = ();
-my $RepoDir = "/var/www/html/jdownloads";
-my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
-my $OutputFile = "$RepoDir/LatestFiles.txt";
-my $HTMLFile = "$RepoDir/LatestFiles.html";
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.3.0";
+my $VERSION = "1.4.0";
 my $filename = "$ENV{HOME}/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
 my $SORTMODE = "name";
 my @DateSort;
 my $DEBUGMODE = "";
+my $RepoDir = "";
 my $DownloadNotice = "For best results download these files with FTP or Hotline
 ";
 
@@ -55,6 +52,8 @@ Classic Macs OSX Cat Editions
 date
 # Download Notice
 For best results download these files with FTP or Hotline
+# Search Directory
+/var/www/html/jdownloads
 # Get more apps like this at https://marisa-apps.retro-os.live
 END_TEMPLATE
 
@@ -103,9 +102,18 @@ while(<FILEIN>)
 		DebugPrint("saw download notice '$DownloadNotice'\n");
 		next;
 	}
+	elsif ($LastLine == 3)
+	{
+		$RepoDir = $_;
+		$LastLine++;
+		DebugPrint("saw repodir '$RepoDir'\n");
+		next;
+	}
 }
 close(FILEIN);
-
+my $UnixFile = "$RepoDir/LatestFilesUnix.txt";
+my $OutputFile = "$RepoDir/LatestFiles.txt";
+my $HTMLFile = "$RepoDir/LatestFiles.html";
 my $HTML_Headers = <<"END_MESSAGE";
 <html>
 <header>
