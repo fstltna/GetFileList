@@ -117,10 +117,14 @@ my $HTMLFile = "$RepoDir/LatestFiles.html";
 my $HTML_Headers = <<"END_MESSAGE";
 <html>
 <header>
-<title>latestfiles file listing tool</title>
+  <title>Files available for download</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="List of files available for downloading">
+  <meta name="keywords" content="file, download, number, contents, perl">
+  <meta name="author" content="https://marisa-apps.retro-os.live">
 </header>
 <body>
-<h1 align=center>latestfiles file listing tool</h1>
+<h1 align=center>Files Available For Download</h1>
 <h2 align=center>$DownloadNotice</h2>
 END_MESSAGE
 
