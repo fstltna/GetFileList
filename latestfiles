@@ -12,7 +12,7 @@ my %FileSize = ();
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.4.0";
+my $VERSION = "1.4.1";
 my $filename = "$ENV{HOME}/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -36,9 +36,10 @@ if ($ENV{'EDITOR'})
 
 sub DebugPrint
 {
+	my $argument = shift;
 	if ($DEBUGMODE eq "debug")
 	{
-		print $_;
+		print $argument;
 	}
 }
 
@@ -194,6 +195,11 @@ while (my $row = <$fh>)
 		next;
 	}
         elsif (substr($row, -15) eq "LatestFiles.txt")
+        {
+                DebugPrint("$row was a blocked file\n");
+                next;
+        }
+        elsif (substr($row, -9) eq ".htaccess")
         {
                 DebugPrint("$row was a blocked file\n");
                 next;
