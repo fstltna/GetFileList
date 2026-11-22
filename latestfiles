@@ -8,11 +8,10 @@ use Data::Dump;
 my $InputFile = "/tmp/files";
 my $FindCommand = "find -L . -print > $InputFile";
 my %FileList = ();
-my %FileSize = ();
 my $ConversionCommand = "/usr/bin/perl -p -e 's/\n/\r/g' < LatestFilesUnix.txt > LatestFiles.txt";
 my $NumFiles = 0;
 my $InputFileSorted = "/tmp/filessorted";
-my $VERSION = "1.4.1";
+my $VERSION = "1.5.0";
 my $filename = "$ENV{HOME}/.latestrc";
 my $ServerName = "";
 my $EDITOR = "nano";
@@ -22,6 +21,7 @@ my $DEBUGMODE = "";
 my $RepoDir = "";
 my $DownloadNotice = "For best results download these files with FTP or Hotline
 ";
+my @Entries;   # each item: [mtime, size, name]
 
 my $HTML_Footers = <<"END_MESSAGE2";
 </body>
@@ -172,7 +172,7 @@ system("sort --output=$InputFileSorted $InputFile");
 
 open(my $fh, '<', $InputFileSorted)
   or die "Could not open file '$InputFileSorted' $!";
- 
+
 while (my $row = <$fh>)
 {
 	chomp $row;
@@ -214,13 +214,6 @@ while (my $row = <$fh>)
                 DebugPrint("$row was a blocked file\n");
                 next;
         }
-	#my $substring = $row;
-	#if (my $mystring =~ /\Q\.rsrc\E/)
-	#if (my $mystring =~ /rsrc/)
-	#{
-	#	print qq("$mystring" contains ".rsrc"\n);
-	#	next;
-	#}
 
 	$row = substr($row, 2);
 	# print "new $row\n";
@@ -236,44 +229,20 @@ while (my $row = <$fh>)
 	$size = fmt2($size);
 	if ($SORTMODE eq "date")
 	{
-		$FileList{$mtime} = $row;
-		$FileSize{$mtime} = $size;
-		DebugPrint("FileList = $FileList{$mtime}\n");
+		push @Entries, [$mtime, $size, $row];
 	}
 	else
 	{
 		$FileList{$row} = $mtime;
 	}
 	$NumFiles += 1;
-
-	# print "$FileList{$mtime}\n";
-	# print "$FileList{$row}\n";
-	# print "$row\n";
 }
 
 print "Done\nProcessing Files: ";
-foreach my $mydate (reverse sort keys %FileList) 	# ZZZ
+foreach my $e (sort { $b->[0] <=> $a->[0] or $a->[2] cmp $b->[2] } @Entries)
 {
-	# print "$mydate\n";
-	my $HumanDate = localtime($mydate)->strftime('%F %T'); # adjust format to taste
-	if (! defined($mydate))
-	{
-		DebugPrint("mydate doesnt exist\n");
-	}
-	if (! defined($FileList{$mydate}))
-	{
-		# print "mydate = $mydate\n";
-		DebugPrint("FileList doesnt exist\n");
-	}
-	if (! defined($FileSize{$mydate}))
-	{
-		# print "$FileSize{$mydate}\n";
-		DebugPrint("FileSize doesnt exist\n");
-		$FileSize{$mydate} = 0;
-	}
-	#print "$FileSize{$mydate}\n";
-	#print "$HumanDate\t$FileSize{$mydate}\t$FileList{$mydate}\n";	# ZZZ
-	push (@DateSort, "$HumanDate\t\t$FileSize{$mydate}\t\t$FileList{$mydate}");
+	my $HumanDate = localtime($e->[0])->strftime('%F %T');
+	push (@DateSort, [$HumanDate, $e->[1], $e->[2]]);
 }
 
 close ($fh);
@@ -282,7 +251,7 @@ sub fmt2 {
    my @units = qw ( B KB MB GB TB );
    #divide by 1024 whilst above
    while ( $bytes > 1024 ) {
-      shift(@units); #drop one of the units prefixes until one 'fits'. 
+      shift(@units); #drop one of the units prefixes until one 'fits'.
       $bytes /= 1024;
    }
    return sprintf( '%.3g%s', $bytes, $units[0] );
@@ -309,7 +278,7 @@ open(my $htmlfh, '>', $HTMLFile)
 
 print $htmlfh "$HTML_Headers";
 
-my $HumanDate = localtime()->strftime('%F %T'); # adjust format to tasprint $fh "Last Scan: $HumanDate\n"
+my $HumanDate = localtime()->strftime('%F %T'); # adjust format to taste
 print $fh "Last Scan:\t$HumanDate\n";
 print $htmlfh "Last Scan:\t$HumanDate<br>\n";
 print $fh "Files found:\t$NumFiles\n";
@@ -318,20 +287,22 @@ print $fh "$DownloadNotice\n\n";
 print $fh "$ServerName Latest Files v$VERSION\n";
 print $htmlfh "$ServerName Latest Files v$VERSION<br>\n";
 print $fh "===================================================\n";
-#print $htmlfh "===================================================\n";
 print $fh "Upload Date\t\t\tSize\t\tFile Name\n";
 print $htmlfh "<table border=2>\n";
 print $htmlfh "<tr><th>Upload Date</th><th>Size</th><th>File Name</th></tr>\n";
 print $fh "-------------\t\t\t---------\t----------\n";
-#print $htmlfh "<tr><td>-------------</td><td>---------</td><td>----------</td></tr>\n";
 
 if ($SORTMODE eq "date")
 {
-	foreach(@DateSort)
+	foreach my $d (@DateSort)
 	{
-		# print "Saw $_\n";
-		print $fh "$_\n";
+		my ($date, $size, $name) = @$d;
+		print $fh "$date\t\t$size\t\t$name\n";
+		print $htmlfh "<tr><td>$date</td><td>$size</td><td>$name</td></tr>\n";
 	}
+	print $htmlfh "</table>\n$HTML_Footers\n";
+	close($fh);
+	close($htmlfh);
 	system($ConversionCommand);
 	print "Done\n";
 	exit 0;
@@ -348,7 +319,6 @@ while(my $CurFile = <$filelist>)
 	}
 	$CurFile = substr($CurFile, 2);
 	# print "File is '$CurFile'\n";
-	#	my $HumanDate = localtime(my $name)->strftime('%F %T'); # adjust format to taste
 	if (($CurFile eq ".")||($CurFile eq "..")||($CurFile eq "./Desktop Folder")||(substr($CurFile, 0, 1) eq "_"))
         {
                 next;
@@ -364,6 +334,11 @@ while(my $CurFile = <$filelist>)
                 next;
         }
         elsif (substr($CurFile, -19) eq "LatestFilesUnix.txt")
+        {
+                DebugPrint("$CurFile was a blocked file\n");
+                next;
+        }
+        elsif (substr($CurFile, -9) eq ".htaccess")
         {
                 DebugPrint("$CurFile was a blocked file\n");
                 next;
@@ -390,23 +365,17 @@ while(my $CurFile = <$filelist>)
 	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
 		$atime,$mtime,$ctime,$blksize,$blocks)
 		= stat($CurFile);
-	$HumanDate = localtime($CurFile)->strftime('%F %T'); # adjust format to taste
 	$mtime = localtime($mtime);
 	$size = fmt2($size);
 	print $fh "$mtime\t$size\t\t$CurFile\n";
 	print $htmlfh "<tr><td>$mtime</td><td>$size</td><td>$CurFile</td></tr>\n";
 }
-print $htmlfh "$HTML_Footers\n";
+print $htmlfh "</table>\n$HTML_Footers\n";
 close($filelist);
 close($htmlfh);
+close($fh);
 print "Done\n";
 
-##foreach my $name (reverse sort keys %FileList)
-#foreach my $name (sort keys %FileList)
-#{
-#	$HumanDate = localtime($name)->strftime('%F %T'); # adjust format to taste
-#	print $fh "$HumanDate\t$FileList{$name}\n";
-#}
-#close ($fh);
 system($ConversionCommand);
 exit 0;
+
